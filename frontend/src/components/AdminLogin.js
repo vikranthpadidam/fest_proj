@@ -1,4 +1,3 @@
-// src/components/aLogin.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input, Button } from "antd"; // Import Ant Design components
@@ -7,8 +6,7 @@ import { AiOutlineUser, AiOutlineLock } from "react-icons/ai"; // Import React I
 const AdminLogin = () => {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false); // Added state for admin status
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Use useNavigate here
 
   const handleLogin = async () => {
     try {
@@ -27,8 +25,10 @@ const AdminLogin = () => {
       console.log(data); // Log the response from the server
 
       if (response.ok) {
-        // Set admin status to true upon successful login
-        setIsAdmin(true);
+        // Save authentication token and isAdmin status to localStorage
+        localStorage.setItem("adminToken", data.token);
+        localStorage.setItem("isAdmin", data.isAdmin);
+
         // Navigate to the dashboard page
         navigate("/");
       } else {

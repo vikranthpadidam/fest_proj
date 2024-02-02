@@ -6,8 +6,8 @@ connectDB();
 
 //Create an instance of the Student model
 const newAdminone = new Admin({
-  userId: "qq", // replace with your desired userId
-  password: "2", // replace with your desired password
+  userId: "radika", // replace with your desired userId
+  password: "143", // replace with your desired password
 });
 //---------------------------------------------------------------------------
 // Save the instance to the database

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const Vollyball = () => {
+   const isAdmin = localStorage.getItem("isAdmin") === "true"; // Retrieve and parse admin status
+  console.log(isAdmin);
+  
   const [matches, setMatches] = useState([]);
   const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -356,51 +359,57 @@ const Vollyball = () => {
     <div className="container mt-4">
       <h1 className="mb-4">Vollyball Page</h1>
       {/*--------------------------------------------------------------------------------------------------------- */}
-      <div className="mb-3">
-        {!isFormVisible ? (
-          <button
-            onClick={() => setIsFormVisible(true)}
-            className="btn btn-primary mr-2"
-          >
-            Add Matches
-          </button>
-        ) : (
-          <div>
-            <label className="mr-2">Name:</label>
-            <input
-              type="text"
-              name="name"
-              value={newMatch.name}
-              onChange={handleInputChange}
-              className="form-control mr-2"
-            />
-            <label className="mr-2">Status:</label>
-            <select
-              name="status"
-              value={newMatch.status}
-              onChange={handleInputChange}
-              className="form-control mr-2"
+      {isAdmin && (
+        <div className="mb-3">
+          {!isFormVisible ? (
+            <button
+              onClick={() => setIsFormVisible(true)}
+              className="btn btn-primary mr-2"
             >
-              <option value="past">Past</option>
-              <option value="present">Present</option>
-              <option value="future">Future</option>
-            </select>
+              Add Matches
+            </button>
+          ) : (
+            <div>
+              <label className="mr-2">Name:</label>
+              <input
+                type="text"
+                name="name"
+                value={newMatch.name}
+                onChange={handleInputChange}
+                className="form-control mr-2"
+              />
+              <label className="mr-2">Status:</label>
+              <select
+                name="status"
+                value={newMatch.status}
+                onChange={handleInputChange}
+                className="form-control mr-2"
+              >
+                <option value="past">Past</option>
+                <option value="present">Present</option>
+                <option value="future">Future</option>
+              </select>
 
-            <button onClick={handleAddMatch} className="btn btn-primary mr-2">
-              {selectedMatch ? "Update Match" : "Add Match"}
-            </button>
-            {/* {selectedMatch && ( */}
-            <button onClick={handleDeleteMatch} className="btn btn-danger mr-2">
-              Delete Match
-            </button>
-            {/* )} */}
+              <button onClick={handleAddMatch} className="btn btn-primary mr-2">
+                {selectedMatch ? "Update Match" : "Add Match"}
+              </button>
+              {/* {selectedMatch && ( */}
+              <button
+                onClick={handleDeleteMatch}
+                className="btn btn-danger mr-2"
+              >
+                Delete Match
+              </button>
+              {/* )} */}
 
-            <button onClick={handleHideForm} className="btn btn-secondary">
-              Hide
-            </button>
-          </div>
-        )}
-      </div>
+              <button onClick={handleHideForm} className="btn btn-secondary">
+                Hide
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ------------------------------------------------------------------ */}
       <div>
         <h2>Matches</h2>
@@ -569,7 +578,7 @@ const Vollyball = () => {
         )}
 
         {/* Toggle Add Score Form Button */}
-        {selectedMatch && !isAddScoreFormVisible && (
+        {isAdmin && selectedMatch && !isAddScoreFormVisible && (
           <button
             onClick={handleToggleAddScoreForm}
             className="btn btn-success mt-2"
@@ -643,7 +652,7 @@ const Vollyball = () => {
           </div>
         </div>
 
-        {selectedMatch && isAddPlayerFormVisible && (
+        {isAdmin && selectedMatch && isAddPlayerFormVisible && (
           <div className="form-row">
             <div className="form-group col-md-3">
               <label>Player Name:</label>
@@ -714,7 +723,7 @@ const Vollyball = () => {
         )}
 
         {/* Toggle Add Player Form Button */}
-        {selectedMatch && !isAddPlayerFormVisible && (
+        {isAdmin && selectedMatch && !isAddPlayerFormVisible && (
           <button
             onClick={handleToggleAddPlayerForm}
             className="btn btn-success mt-2"

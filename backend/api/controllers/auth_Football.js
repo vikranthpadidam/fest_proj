@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Admin = require("../models/adminModel");
 const F_match = require("../models/F_match");
 
-
 require("dotenv").config();
 
 const jwt = require("jsonwebtoken");
@@ -27,8 +26,13 @@ const adminLogin = async (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: "1h" } // Set the expiration time
       );
-      console.log(token); //generating token
-      res.json({ message: "Admin login successful", role: "admin" });
+
+      res.json({
+        message: "Admin login successful",
+        role: "admin",
+        isAdmin: true, // Include isAdmin status in the response
+        token,
+      });
     } else {
       res.status(401).json({ error: "Invalid password" });
     }
@@ -333,8 +337,6 @@ const deletePlayerDetails = async (req, res) => {
 };
 // ------------------------------------------------------------------------------------------------------------------------
 
-
-
 module.exports = {
   adminLogin,
 
@@ -352,6 +354,4 @@ module.exports = {
   getPlayers,
   updatePlayerDetails,
   deletePlayerDetails,
-
-  
 };
