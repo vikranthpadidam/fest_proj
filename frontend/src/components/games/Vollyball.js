@@ -354,7 +354,7 @@ const Vollyball = () => {
 
   return (
     <div className="container mt-4">
-      <h1 className="mb-4">Football App</h1>
+      <h1 className="mb-4">Vollyball Page</h1>
       {/*--------------------------------------------------------------------------------------------------------- */}
       <div className="mb-3">
         {!isFormVisible ? (
