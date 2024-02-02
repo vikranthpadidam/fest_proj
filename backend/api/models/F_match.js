@@ -21,6 +21,6 @@ const matchSchema = new mongoose.Schema({
   players: [playerSchema], // Change from 'teamPlayers' to 'players'
 });
 
-const Match = mongoose.model("Match", matchSchema);
+const F_match = mongoose.model("F_match", matchSchema);
 
-module.exports = Match;
+module.exports = F_match;
