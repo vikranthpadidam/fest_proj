@@ -3,21 +3,6 @@ const authControllers = require('../controllers/authController');
 const router = express.Router();
 
 router.post("/admin_login", authControllers.adminLogin);
-// Routes for Team 1 Players
-// router.get("/players/team1", authControllers.getTeam1Players);
-// router.post("/players/team1", authControllers.addTeam1Player);
-// router.put("/players/:id", authControllers.editPlayer);
-// router.delete("/players/:id", authControllers.deletePlayer);
-
-// // Routes for Team 2 Players
-// router.get("/players/team2", authControllers.getTeam2Players);
-// router.post("/players/team2", authControllers.addTeam2Player);
-
-
-// router.post("/scores", authControllers.addScore);
-// router.put("/scores/:id", authControllers.updateScore);
-// router.delete("/scores/:id", authControllers.deleteScore);
-// router.get("/scores", authControllers.fetchScores);
 
 // Define routes
 router.post("/addMatch", authControllers.addMatch);
@@ -28,7 +13,6 @@ router.delete("/deleteMatch/:id", authControllers.deleteMatch);
 router.post("/addScores/:id", authControllers.addScoredetails);
 router.get("/getScores/:id", authControllers.getScoredetails); // New route to get scores
 router.put("/updateScoredetails/:scoreId", authControllers.updateScoredetails);
-// Example in your backend code
 router.delete("/deleteScoredetails/:scoreId", authControllers.deleteScoredetails);
 
 
@@ -44,4 +28,35 @@ router.delete(
 );
 
 
+// Define routes
+router.post("/addMatch_volly", authControllers.addMatch);
+router.get("/getMatches_volly", authControllers.getMatches);
+router.put("/updateMatch_volly/:id", authControllers.updateMatch);
+router.delete("/deleteMatch_volly/:id", authControllers.deleteMatch);
+
+router.post("/addScores_volly/:id", authControllers.addScoredetails_volly);
+router.get("/getScores_volly/:id", authControllers.getScoredetails_volly); // New route to get scores
+router.put(
+  "/updateScoredetails_volly/:scoreId",
+  authControllers.updateScoredetails_volly
+);
+router.delete(
+  "/deleteScoredetails_volly/:scoreId",
+  authControllers.deleteScoredetails_volly
+);
+
+
+router.post("/addPlayers_volly/:matchId", authControllers.addPlayers_volly);
+router.get("/getPlayers_volly/:matchId", authControllers.getPlayers_volly);
+router.put(
+  "/updatePlayerDetails_volly/:playerId",
+  authControllers.updatePlayerDetails_volly
+);
+router.delete(
+  "/deletePlayerDetails_volly/:playerId",
+  authControllers.deletePlayerDetails_volly
+);
+
+
 module.exports = router;
+

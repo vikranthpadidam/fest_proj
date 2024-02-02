@@ -25,30 +25,19 @@ function NavbarPage() {
     });
   };
 
-  const [isGirlsDropdownOpen, setGirlsDropdownOpen] = useState(false);
-  const [isBoysDropdownOpen, setBoysDropdownOpen] = useState(false);
+  const [isEventsDropdownOpen, setEventsDropdownOpen] = useState(false);
   const [images] = useState([
     "images/cup_img.jpg",
     "images/cup_img.jpg",
     "images/cup_img.jpg",
   ]);
 
-  const handleGirlsHover = () => {
-    setGirlsDropdownOpen(true);
-    setBoysDropdownOpen(false);
+  const handleEventsHover = () => {
+    setEventsDropdownOpen(true);
   };
 
-  const handleGirlsLeave = () => {
-    setGirlsDropdownOpen(false);
-  };
-
-  const handleBoysHover = () => {
-    setBoysDropdownOpen(true);
-    setGirlsDropdownOpen(false);
-  };
-
-  const handleBoysLeave = () => {
-    setBoysDropdownOpen(false);
+  const handleEventsLeave = () => {
+    setEventsDropdownOpen(false);
   };
 
   const scrollToSection = (sectionId) => {
@@ -94,24 +83,26 @@ function NavbarPage() {
             </li>
             <li
               className={`nav-item dropdown ${
-                isGirlsDropdownOpen ? "show" : ""
+                isEventsDropdownOpen ? "show" : ""
               }`}
-              onMouseEnter={handleGirlsHover}
-              onMouseLeave={handleGirlsLeave}
+              onMouseEnter={handleEventsHover}
+              onMouseLeave={handleEventsLeave}
             >
               <span
                 className="nav-link dropdown-toggle"
                 role="button"
                 data-bs-toggle="dropdown"
                 aria-haspopup="true"
-                aria-expanded={isGirlsDropdownOpen}
+                aria-expanded={isEventsDropdownOpen}
               >
                 Events
               </span>
               <div
-                className={`dropdown-menu ${isGirlsDropdownOpen ? "show" : ""}`}
+                className={`dropdown-menu ${
+                  isEventsDropdownOpen ? "show" : ""
+                }`}
               >
-                {/* Add your sub-sub-buttons for Girls here */}
+                {/* Add your sub-sub-buttons for Events here */}
                 <Link
                   className="dropdown-item"
                   onClick={() => handleEventClick("cricket")}
@@ -124,6 +115,7 @@ function NavbarPage() {
                 >
                   Vollyball
                 </Link>
+                {/* Add more sub-sub-buttons as needed */}
                 <Link
                   className="dropdown-item"
                   onClick={() => handleEventClick("basketball")}
@@ -169,43 +161,7 @@ function NavbarPage() {
                 <Link
                   className="dropdown-item"
                   onClick={() => handleEventClick("carroms")}
-                >
-                  carroms
-                </Link>
-                <Link
-                  className="dropdown-item"
-                  onClick={() => handleEventClick("chess")}
-                >
-                  chess
-                </Link>
-
-                {/* Add more sub-sub-buttons as needed */}
-              </div>
-            </li>
-
-            <li
-              className={`nav-item dropdown ${
-                isBoysDropdownOpen ? "show" : ""
-              }`}
-              onMouseEnter={handleBoysHover}
-              onMouseLeave={handleBoysLeave}
-            >
-              <span
-                className="nav-link dropdown-toggle"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded={isBoysDropdownOpen}
-              >
-                Boys
-              </span>
-              <div
-                className={`dropdown-menu ${isBoysDropdownOpen ? "show" : ""}`}
-              >
-                {/* Add your sub-sub-buttons for Boys here */}
-                <Link className="dropdown-item">Cricket</Link>
-
-                {/* Add more sub-sub-buttons as needed */}
+                ></Link>
               </div>
             </li>
             <li className="nav-item">
