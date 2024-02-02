@@ -1,5 +1,6 @@
 const express = require("express");
 const authControllers = require('../controllers/authController');
+const authControllers1 = require("../controllers/authControllers1");
 const router = express.Router();
 
 router.post("/admin_login", authControllers.adminLogin);
@@ -29,32 +30,32 @@ router.delete(
 
 
 // Define routes
-router.post("/addMatch_volly", authControllers.addMatch);
-router.get("/getMatches_volly", authControllers.getMatches);
-router.put("/updateMatch_volly/:id", authControllers.updateMatch);
-router.delete("/deleteMatch_volly/:id", authControllers.deleteMatch);
+router.post("/addMatch_volly", authControllers1.addMatch);
+router.get("/getMatches_volly", authControllers1.getMatches);
+router.put("/updateMatch_volly/:id", authControllers1.updateMatch);
+router.delete("/deleteMatch_volly/:id", authControllers1.deleteMatch);
 
-router.post("/addScores_volly/:id", authControllers.addScoredetails_volly);
-router.get("/getScores_volly/:id", authControllers.getScoredetails_volly); // New route to get scores
+router.post("/addScores_volly/:id", authControllers1.addScoredetails);
+router.get("/getScores_volly/:id", authControllers1.getScoredetails); // New route to get scores
 router.put(
   "/updateScoredetails_volly/:scoreId",
-  authControllers.updateScoredetails_volly
+  authControllers1.updateScoredetails
 );
 router.delete(
   "/deleteScoredetails_volly/:scoreId",
-  authControllers.deleteScoredetails_volly
+  authControllers1.deleteScoredetails
 );
 
 
-router.post("/addPlayers_volly/:matchId", authControllers.addPlayers_volly);
-router.get("/getPlayers_volly/:matchId", authControllers.getPlayers_volly);
+router.post("/addPlayers_volly/:matchId", authControllers1.addPlayers);
+router.get("/getPlayers_volly/:matchId", authControllers1.getPlayers);
 router.put(
   "/updatePlayerDetails_volly/:playerId",
-  authControllers.updatePlayerDetails_volly
+  authControllers1.updatePlayerDetails
 );
 router.delete(
   "/deletePlayerDetails_volly/:playerId",
-  authControllers.deletePlayerDetails_volly
+  authControllers1.deletePlayerDetails
 );
 
 
