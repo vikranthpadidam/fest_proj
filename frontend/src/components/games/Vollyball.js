@@ -3,10 +3,11 @@ import axios from "axios";
 
 const Vollyball = () => {
    const isAdmin = localStorage.getItem("isAdmin") === "true"; // Retrieve and parse admin status
-  console.log(isAdmin);
+
   
   const [matches, setMatches] = useState([]);
-  const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
+const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
+
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [isAddScoreFormVisible, setIsAddScoreFormVisible] = useState(false);
@@ -40,9 +41,10 @@ const Vollyball = () => {
       .catch((error) => console.error(error));
   }, []);
 
-  const handleInputChange = (e) => {
-    setNewMatch({ ...newMatch, [e.target.name]: e.target.value });
-  };
+const handleInputChange = (e) => {
+  setNewMatch({ ...newMatch, [e.target.name]: e.target.value });
+};
+
 
   const handleAddMatch = () => {
     if (selectedMatch) {
@@ -374,7 +376,7 @@ const Vollyball = () => {
               <input
                 type="text"
                 name="name"
-                value={newMatch.name}
+                value={newMatch.name || ''}
                 onChange={handleInputChange}
                 className="form-control mr-2"
               />

@@ -14,7 +14,7 @@ import Running from "./components/games/Running";
 import Tabletennis from "./components/games/Tabletennis";
 import Throwball from "./components/games/Throwball";
 import Vollyball from "./components/games/Vollyball";
-import Statistics from "./components/statistics/Statistics";
+import Statistics from "./components/Statistics";
 import AdminLogin from "./components/AdminLogin"
 
 function App() {

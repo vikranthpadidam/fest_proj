@@ -3,7 +3,7 @@ import axios from "axios";
 
 const Football = () => {
  const isAdmin = localStorage.getItem("isAdmin") === "true"; // Retrieve and parse admin status
- console.log(isAdmin);
+
 
   const [matches, setMatches] = useState([]);
   const [newMatch, setNewMatch] = useState({ name: "", status: "future" });

@@ -3,7 +3,7 @@ import NavbarPage from "./NavbarPage";
 import Images from "./Images";
 import KreedaSection from "./KreedaSection";
 import TodayMatchesList from "./TodayMatchesList";
-import LiveMatches from "./LiveMatches";
+
 import ClubMembers from "./ClubMembers";
 
 function HomePage() {
@@ -13,7 +13,6 @@ function HomePage() {
       <Images />
       <KreedaSection />
       <TodayMatchesList />
-      <LiveMatches />
       <ClubMembers />
       {/* Follow Us Section */}
       <div className="follow-us-section mt-4 text-center">

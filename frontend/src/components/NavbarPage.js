@@ -7,9 +7,7 @@ function NavbarPage() {
   const navigate = useNavigate();
 
   const handleEventClick = (event) => {
-    console.log("Clicked event:", event);
     if (event.toLowerCase() === "admin") {
-      console.log("ellow");
       navigate("/admin_login");
     } else {
       // Navigate to the "/event" route programmatically
@@ -49,11 +47,13 @@ function NavbarPage() {
   };
 
   useEffect(() => {
+
     // Preload images
     images.forEach((image) => {
       const img = new Image();
       img.src = image;
     });
+    
   }, [images]);
 
   return (

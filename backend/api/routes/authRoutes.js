@@ -1,6 +1,7 @@
 const express = require("express");
 const auth_Football = require('../controllers/auth_Football');
 const auth_Vollyball = require("../controllers/auth_Vollyball");
+const authStatistics=require('../controllers/authStatistics')
 const router = express.Router();
 
 router.post("/admin_login", auth_Football.adminLogin);
@@ -50,6 +51,12 @@ router.delete(
   "/deletePlayerDetails_volly/:playerId",
   auth_Vollyball.deletePlayerDetails
 );
+
+router.get("/getAllStatistics", authStatistics.getAllStatistics);
+router.post("/addStatistic", authStatistics.addStatistic);
+router.put("/updateStatistic/:id", authStatistics.updateStatistic);
+router.delete("/deleteStatistic/:id", authStatistics.deleteStatistic);
+
 
 
 
