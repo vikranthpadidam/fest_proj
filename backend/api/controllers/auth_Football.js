@@ -29,7 +29,7 @@ const adminLogin = async (req, res) => {
 
       res.json({
         message: "Admin login successful",
-        role: "admin",
+        role: admin.role,
         isAdmin: true, // Include isAdmin status in the response
         token,
       });
@@ -42,11 +42,12 @@ const adminLogin = async (req, res) => {
   }
 };
 
+
 // Controller to add a new match
 const addMatch = async (req, res) => {
   try {
-    const { name, status } = req.body;
-    const newMatch = new F_match({ name, status });
+    const { name, status, gender } = req.body;
+    const newMatch = new F_match({ name, status, gender });
     await newMatch.save();
     res.json(newMatch);
   } catch (error) {
@@ -69,7 +70,7 @@ const getMatches = async (req, res) => {
 const updateMatch = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, status } = req.body;
+    const { name, status, gender } = req.body;
 
     // Check if the match exists
     const existingMatch = await F_match.findById(id);
@@ -80,6 +81,7 @@ const updateMatch = async (req, res) => {
     // Update the match
     existingMatch.name = name;
     existingMatch.status = status;
+    existingMatch.gender = gender;
     const updatedMatch = await existingMatch.save();
 
     res.json(updatedMatch);

@@ -22,7 +22,6 @@ const AdminLogin = () => {
       );
 
       const data = await response.json();
-      console.log(data); // Log the response from the server
 
       if (response.ok) {
         // Save authentication token and isAdmin status to localStorage

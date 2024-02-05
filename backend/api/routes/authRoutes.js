@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post("/admin_login", auth_Football.adminLogin);
 
+
 // Define routes
 router.post("/addMatch", auth_Football.addMatch);
 router.get("/getMatches", auth_Football.getMatches);

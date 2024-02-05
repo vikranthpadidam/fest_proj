@@ -17,6 +17,7 @@ const scoreSchema = new mongoose.Schema({
 const matchSchema = new mongoose.Schema({
   name: String,
   status: String,
+  gender:String,
   scores: [scoreSchema],
   players: [playerSchema], // Change from 'teamPlayers' to 'players'
 });

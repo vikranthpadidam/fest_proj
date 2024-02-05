@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const Football = () => {
- const isAdmin = localStorage.getItem("isAdmin") === "true"; // Retrieve and parse admin status
-
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const [matches, setMatches] = useState([]);
   const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
@@ -58,7 +57,7 @@ const Football = () => {
               match._id === selectedMatch._id ? response.data : match
             )
           );
-          setNewMatch({ name: "", status: "future" });
+          setNewMatch({ name: "", status: "future", gender: "boys" });
           setSelectedMatch(null);
           setIsFormVisible(false);
         })
@@ -69,7 +68,7 @@ const Football = () => {
         .post("http://localhost:5000/api/auth/addMatch", newMatch)
         .then((response) => {
           setMatches([...matches, response.data]);
-          setNewMatch({ name: "", status: "future" });
+          setNewMatch({ name: "", status: "future", gender: "boys" });
           setIsFormVisible(false);
         })
         .catch((error) => console.error(error));
@@ -363,37 +362,56 @@ const Football = () => {
             </button>
           ) : (
             <div>
-              <label className="mr-2">Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={newMatch.name}
-                onChange={handleInputChange}
-                className="form-control mr-2"
-              />
-              <label className="mr-2">Status:</label>
-              <select
-                name="status"
-                value={newMatch.status}
-                onChange={handleInputChange}
-                className="form-control mr-2"
-              >
-                <option value="past">Past</option>
-                <option value="present">Present</option>
-                <option value="future">Future</option>
-              </select>
+              <div className="form-group">
+                <label htmlFor="name">Name:</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={newMatch.name}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="status">Status:</label>
+                <select
+                  name="status"
+                  value={newMatch.status}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                >
+                  <option value="past">Past</option>
+                  <option value="present">Present</option>
+                  <option value="future">Future</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="gender">Gender:</label>
+                <select
+                  name="gender"
+                  value={newMatch.gender}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                >
+                  <option value="boys">Boys</option>
+                  <option value="girls">Girls</option>
+                </select>
+              </div>
 
               <button onClick={handleAddMatch} className="btn btn-primary mr-2">
                 {selectedMatch ? "Update Match" : "Add Match"}
               </button>
-              {/* {selectedMatch && ( */}
-              <button
-                onClick={handleDeleteMatch}
-                className="btn btn-danger mr-2"
-              >
-                Delete Match
-              </button>
-              {/* )} */}
+
+              {selectedMatch && (
+                <button
+                  onClick={handleDeleteMatch}
+                  className="btn btn-danger mr-2"
+                >
+                  Delete Match
+                </button>
+              )}
 
               <button onClick={handleHideForm} className="btn btn-secondary">
                 Hide
@@ -405,13 +423,15 @@ const Football = () => {
 
       {/* ------------------------------------------------------------------ */}
       <div>
-        <h2>Matches</h2>
+        <h2>Boys Matches</h2>
         <div className="row">
           <div className="col-md-4">
             <h4>Yesterday</h4>
             <ul className="list-group">
               {matches
-                .filter((match) => match.status === "past")
+                .filter(
+                  (match) => match.status === "past" && match.gender === "boys"
+                )
                 .map((match) => (
                   <li
                     key={match._id}
@@ -431,7 +451,10 @@ const Football = () => {
             <h4>Today</h4>
             <ul className="list-group">
               {matches
-                .filter((match) => match.status === "present")
+                .filter(
+                  (match) =>
+                    match.status === "present" && match.gender === "boys"
+                )
                 .map((match) => (
                   <li
                     key={match._id}
@@ -451,7 +474,10 @@ const Football = () => {
             <h4>Tomorrow</h4>
             <ul className="list-group">
               {matches
-                .filter((match) => match.status === "future")
+                .filter(
+                  (match) =>
+                    match.status === "future" && match.gender === "boys"
+                )
                 .map((match) => (
                   <li
                     key={match._id}
@@ -469,6 +495,82 @@ const Football = () => {
           </div>
         </div>
       </div>
+
+      {/* Girls Matches */}
+      <div>
+        <h2>Girls Matches</h2>
+        <div className="row">
+          <div className="col-md-4">
+            <h4>Yesterday</h4>
+            <ul className="list-group">
+              {matches
+                .filter(
+                  (match) => match.status === "past" && match.gender === "girls"
+                )
+                .map((match) => (
+                  <li
+                    key={match._id}
+                    className={`list-group-item ${
+                      selectedMatch && selectedMatch._id === match._id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleRowClick(match)}
+                  >
+                    {match.name}
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className="col-md-4">
+            <h4>Today</h4>
+            <ul className="list-group">
+              {matches
+                .filter(
+                  (match) =>
+                    match.status === "present" && match.gender === "girls"
+                )
+                .map((match) => (
+                  <li
+                    key={match._id}
+                    className={`list-group-item ${
+                      selectedMatch && selectedMatch._id === match._id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleRowClick(match)}
+                  >
+                    {match.name}
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className="col-md-4">
+            <h4>Tomorrow</h4>
+            <ul className="list-group">
+              {matches
+                .filter(
+                  (match) =>
+                    match.status === "future" && match.gender === "girls"
+                )
+                .map((match) => (
+                  <li
+                    key={match._id}
+                    className={`list-group-item ${
+                      selectedMatch && selectedMatch._id === match._id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleRowClick(match)}
+                  >
+                    {match.name}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
       {/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */}
       <div className="mt-4">
         <h3>Score Details</h3>

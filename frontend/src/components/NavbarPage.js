@@ -2,9 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Link, animateScroll as scroll } from "react-scroll";
 import { BiHome } from "react-icons/bi"; // Import the home icon
 import { useNavigate } from "react-router-dom";
+import { Button } from "antd";
 
 function NavbarPage() {
   const navigate = useNavigate();
+    const isAdminLoggedIn = localStorage.getItem("isAdmin") === "true";
+
+    const handleAdminLogout = () => {
+      // Update localStorage to mark the user as not an admin
+      localStorage.setItem("isAdmin", "false");
+      localStorage.removeItem("adminToken");
+    };
 
   const handleEventClick = (event) => {
     if (event.toLowerCase() === "admin") {
@@ -181,12 +189,24 @@ function NavbarPage() {
               </Link>
             </li>
             <li className="nav-item">
-              <Link
-                className="nav-link"
-                onClick={() => handleEventClick("admin")}
-              >
-                Admin Login
-              </Link>
+              {isAdminLoggedIn ? (
+                // If admin is logged in, show the logout button
+                <Button
+                  type="default"
+                  onClick={handleAdminLogout}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Admin Logout
+                </Button>
+              ) : (
+                // If admin is not logged in, show the login button
+                <Link
+                  className="nav-link"
+                  onClick={() => handleEventClick("admin")}
+                >
+                  Admin Login
+                </Link>
+              )}
             </li>
           </ul>
         </div>
