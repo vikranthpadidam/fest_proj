@@ -5,14 +5,23 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "antd";
 
 function NavbarPage() {
-  const navigate = useNavigate();
-    const isAdminLoggedIn = localStorage.getItem("isAdmin") === "true";
+  const [showLogoutSuccessMessage, setShowLogoutSuccessMessage] =
+    useState(false);
 
-    const handleAdminLogout = () => {
-      // Update localStorage to mark the user as not an admin
-      localStorage.setItem("isAdmin", "false");
-      localStorage.removeItem("adminToken");
-    };
+  const navigate = useNavigate();
+  const isAdminLoggedIn = localStorage.getItem("isAdmin") === "true";
+
+  const handleAdminLogout = () => {
+    // Update localStorage to mark the user as not an admin
+    localStorage.setItem("isAdmin", "false");
+    localStorage.removeItem("adminToken");
+    setShowLogoutSuccessMessage(true);
+
+    // Navigate to the home page or any other desired page after logout (optional)
+    setTimeout(() => {
+      navigate("/");
+    }, 1000);
+  };
 
   const handleEventClick = (event) => {
     if (event.toLowerCase() === "admin") {
@@ -55,13 +64,11 @@ function NavbarPage() {
   };
 
   useEffect(() => {
-
     // Preload images
     images.forEach((image) => {
       const img = new Image();
       img.src = image;
     });
-    
   }, [images]);
 
   return (
@@ -162,9 +169,15 @@ function NavbarPage() {
                 </Link>
                 <Link
                   className="dropdown-item"
-                  onClick={() => handleEventClick("running")}
+                  onClick={() => handleEventClick("carroms")}
                 >
-                  Running
+                  Carroms
+                </Link>
+                <Link
+                  className="dropdown-item"
+                  onClick={() => handleEventClick("chess")}
+                >
+                  Chess
                 </Link>
                 <Link
                   className="dropdown-item"
@@ -191,13 +204,20 @@ function NavbarPage() {
             <li className="nav-item">
               {isAdminLoggedIn ? (
                 // If admin is logged in, show the logout button
-                <Button
-                  type="default"
-                  onClick={handleAdminLogout}
-                  style={{ marginLeft: "10px" }}
-                >
-                  Admin Logout
-                </Button>
+                <>
+                  <Button
+                    type="default"
+                    onClick={handleAdminLogout}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    Admin Logout
+                  </Button>
+                  {showLogoutSuccessMessage && (
+                    <div className="success-message">
+                      Logout successful! Redirecting...
+                    </div>
+                  )}
+                </>
               ) : (
                 // If admin is not logged in, show the login button
                 <Link

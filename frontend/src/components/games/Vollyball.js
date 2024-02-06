@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const Vollyball = () => {
-   const isAdmin = localStorage.getItem("isAdmin") === "true"; // Retrieve and parse admin status
+  const isAdmin = localStorage.getItem("isAdmin") === "true"; // Retrieve and parse admin status
 
-  
   const [matches, setMatches] = useState([]);
-const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
+  const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
 
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
@@ -41,10 +40,9 @@ const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
       .catch((error) => console.error(error));
   }, []);
 
-const handleInputChange = (e) => {
-  setNewMatch({ ...newMatch, [e.target.name]: e.target.value });
-};
-
+  const handleInputChange = (e) => {
+    setNewMatch({ ...newMatch, [e.target.name]: e.target.value });
+  };
 
   const handleAddMatch = () => {
     if (selectedMatch) {
@@ -60,7 +58,7 @@ const handleInputChange = (e) => {
               match._id === selectedMatch._id ? response.data : match
             )
           );
-          setNewMatch({ name: "", status: "future" });
+          setNewMatch({ name: "", status: "future",gender:"boys" });
           setSelectedMatch(null);
           setIsFormVisible(false);
         })
@@ -71,7 +69,7 @@ const handleInputChange = (e) => {
         .post("http://localhost:5000/api/auth/addMatch_volly", newMatch)
         .then((response) => {
           setMatches([...matches, response.data]);
-          setNewMatch({ name: "", status: "future" });
+          setNewMatch({ name: "", status: "future", gender: "boys" });
           setIsFormVisible(false);
         })
         .catch((error) => console.error(error));
@@ -162,12 +160,12 @@ const handleInputChange = (e) => {
 
   const handleUpdateScore = () => {
     if (selectedMatch && selectedScoreDetails) {
-      console.log(selectedScoreDetails._id);
-      console.log(selectedMatch);
+      const scoreId = selectedScoreDetails._id;
+
       // Update existing score
       axios
         .put(
-          `http://localhost:5000/api/auth/updateScoredetails_volly/${selectedScoreDetails._id}`,
+          `http://localhost:5000/api/auth/updateScoredetails_volly/${selectedMatch._id}/${scoreId}`,
           scoreFormData
         )
         .then((response) => {
@@ -196,10 +194,7 @@ const handleInputChange = (e) => {
 
       axios
         .delete(
-          `http://localhost:5000/api/auth/deleteScoredetails_volly/${scoreId}`,
-          {
-            data: { matchId: matchId },
-          }
+          `http://localhost:5000/api/auth/deleteScoredetails_volly/${scoreId}/${matchId}`
         )
         .then(() => {
           const updatedScores = scores.filter(
@@ -273,12 +268,13 @@ const handleInputChange = (e) => {
 
   const handleUpdatePlayer = () => {
     if (selectedMatch && selectedPlayerDetails) {
-      const { _id } = selectedPlayerDetails;
+      const matchId = selectedMatch._id;
+      const playerId = selectedPlayerDetails._id;
 
       // Update existing player
       axios
         .put(
-          `http://localhost:5000/api/auth/updatePlayerDetails_volly/${_id}`,
+          `http://localhost:5000/api/auth/updatePlayerDetails_volly/${matchId}/${playerId}`,
           {
             player_name: playerFormData.player_name,
             roll_no: playerFormData.roll_no,
@@ -293,10 +289,10 @@ const handleInputChange = (e) => {
           const updatedPlayers =
             playerFormData.team_status === "TeamA"
               ? playersTeamA.map((player) =>
-                  player._id === _id ? updatedPlayer : player
+                  player._id === playerId ? updatedPlayer : player
                 )
               : playersTeamB.map((player) =>
-                  player._id === _id ? updatedPlayer : player
+                  player._id === playerId ? updatedPlayer : player
                 );
 
           // Set the updated players to the respective state
@@ -319,9 +315,11 @@ const handleInputChange = (e) => {
 
   const handleDeletePlayer = () => {
     if (selectedPlayerDetails) {
+      const matchId = selectedMatch._id;
+      const playerId = selectedPlayerDetails._id;
       axios
         .delete(
-          `http://localhost:5000/api/auth/deletePlayerDetails_volly/${selectedPlayerDetails._id}`
+          `http://localhost:5000/api/auth/deletePlayerDetails/${playerId}/${matchId}`
         )
         .then(() => {
           const updatedPlayers =
@@ -372,37 +370,56 @@ const handleInputChange = (e) => {
             </button>
           ) : (
             <div>
-              <label className="mr-2">Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={newMatch.name || ''}
-                onChange={handleInputChange}
-                className="form-control mr-2"
-              />
-              <label className="mr-2">Status:</label>
-              <select
-                name="status"
-                value={newMatch.status}
-                onChange={handleInputChange}
-                className="form-control mr-2"
-              >
-                <option value="past">Past</option>
-                <option value="present">Present</option>
-                <option value="future">Future</option>
-              </select>
+              <div className="form-group">
+                <label htmlFor="name">Name:</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={newMatch.name}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="status">Status:</label>
+                <select
+                  name="status"
+                  value={newMatch.status}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                >
+                  <option value="past">Past</option>
+                  <option value="present">Present</option>
+                  <option value="future">Future</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="gender">Gender:</label>
+                <select
+                  name="gender"
+                  value={newMatch.gender}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                >
+                  <option value="boys">Boys</option>
+                  <option value="girls">Girls</option>
+                </select>
+              </div>
 
               <button onClick={handleAddMatch} className="btn btn-primary mr-2">
                 {selectedMatch ? "Update Match" : "Add Match"}
               </button>
-              {/* {selectedMatch && ( */}
-              <button
-                onClick={handleDeleteMatch}
-                className="btn btn-danger mr-2"
-              >
-                Delete Match
-              </button>
-              {/* )} */}
+
+              {selectedMatch && (
+                <button
+                  onClick={handleDeleteMatch}
+                  className="btn btn-danger mr-2"
+                >
+                  Delete Match
+                </button>
+              )}
 
               <button onClick={handleHideForm} className="btn btn-secondary">
                 Hide
@@ -414,13 +431,15 @@ const handleInputChange = (e) => {
 
       {/* ------------------------------------------------------------------ */}
       <div>
-        <h2>Matches</h2>
+        <h2>Boys Matches</h2>
         <div className="row">
           <div className="col-md-4">
             <h4>Yesterday</h4>
             <ul className="list-group">
               {matches
-                .filter((match) => match.status === "past")
+                .filter(
+                  (match) => match.status === "past" && match.gender === "boys"
+                )
                 .map((match) => (
                   <li
                     key={match._id}
@@ -440,7 +459,10 @@ const handleInputChange = (e) => {
             <h4>Today</h4>
             <ul className="list-group">
               {matches
-                .filter((match) => match.status === "present")
+                .filter(
+                  (match) =>
+                    match.status === "present" && match.gender === "boys"
+                )
                 .map((match) => (
                   <li
                     key={match._id}
@@ -460,7 +482,85 @@ const handleInputChange = (e) => {
             <h4>Tomorrow</h4>
             <ul className="list-group">
               {matches
-                .filter((match) => match.status === "future")
+                .filter(
+                  (match) =>
+                    match.status === "future" && match.gender === "boys"
+                )
+                .map((match) => (
+                  <li
+                    key={match._id}
+                    className={`list-group-item ${
+                      selectedMatch && selectedMatch._id === match._id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleRowClick(match)}
+                  >
+                    {match.name}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Girls Matches */}
+      <div>
+        <h2>Girls Matches</h2>
+        <div className="row">
+          <div className="col-md-4">
+            <h4>Yesterday</h4>
+            <ul className="list-group">
+              {matches
+                .filter(
+                  (match) => match.status === "past" && match.gender === "girls"
+                )
+                .map((match) => (
+                  <li
+                    key={match._id}
+                    className={`list-group-item ${
+                      selectedMatch && selectedMatch._id === match._id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleRowClick(match)}
+                  >
+                    {match.name}
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className="col-md-4">
+            <h4>Today</h4>
+            <ul className="list-group">
+              {matches
+                .filter(
+                  (match) =>
+                    match.status === "present" && match.gender === "girls"
+                )
+                .map((match) => (
+                  <li
+                    key={match._id}
+                    className={`list-group-item ${
+                      selectedMatch && selectedMatch._id === match._id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleRowClick(match)}
+                  >
+                    {match.name}
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className="col-md-4">
+            <h4>Tomorrow</h4>
+            <ul className="list-group">
+              {matches
+                .filter(
+                  (match) =>
+                    match.status === "future" && match.gender === "girls"
+                )
                 .map((match) => (
                   <li
                     key={match._id}

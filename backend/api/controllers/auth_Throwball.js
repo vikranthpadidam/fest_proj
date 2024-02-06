@@ -1,12 +1,11 @@
 const mongoose = require("mongoose");
-const V_m = require("../models/V_m");
-
+const TW_m = require('../models/TW_m');
 
 // Controller to add a new match
 const addMatch = async (req, res) => {
   try {
-    const { name, status,gender } = req.body;
-    const newMatch = new V_m({ name, status, gender });
+    const { name, status, gender } = req.body;
+    const newMatch = new TW_m({ name, status });
     await newMatch.save();
     res.json(newMatch);
   } catch (error) {
@@ -18,7 +17,7 @@ const addMatch = async (req, res) => {
 // Controller to get all matches
 const getMatches = async (req, res) => {
   try {
-    const matches = await V_m.find();
+    const matches = await TW_m.find();
     res.json(matches);
   } catch (error) {
     console.error(error);
@@ -29,10 +28,10 @@ const getMatches = async (req, res) => {
 const updateMatch = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, status, gender } = req.body;
+    const { name, status } = req.body;
 
     // Check if the match exists
-    const existingMatch = await V_m.findById(id);
+    const existingMatch = await TW_m.findById(id);
     if (!existingMatch) {
       return res.status(404).json({ error: "Match not found" });
     }
@@ -40,7 +39,6 @@ const updateMatch = async (req, res) => {
     // Update the match
     existingMatch.name = name;
     existingMatch.status = status;
-     existingMatch.gender = gender;
     const updatedMatch = await existingMatch.save();
 
     res.json(updatedMatch);
@@ -56,7 +54,7 @@ const deleteMatch = async (req, res) => {
     const { id } = req.params;
 
     // Check if the match exists
-    const existingMatch = await V_m.findByIdAndDelete(id);
+    const existingMatch = await TW_m.findByIdAndDelete(id);
     if (!existingMatch) {
       console.log(`Match not found with id: ${id}`);
       return res.status(404).json({ error: "Match not found" });
@@ -73,15 +71,15 @@ const deleteMatch = async (req, res) => {
 const addScoredetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const { teams, round1, round2, round3 } = req.body;
+    const { teams, round1 } = req.body;
 
-    const match = await V_m.findById(id);
+    const match = await TW_m.findById(id);
 
     if (!match) {
       return res.status(404).json({ error: "Match not found" });
     }
 
-    const newScore = { teams, round1, round2, round3 };
+    const newScore = { teams, round1 };
     match.scores.push(newScore);
 
     await match.save();
@@ -97,7 +95,7 @@ const getScoredetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const match = await V_m.findById(id);
+    const match = await TW_m.findById(id);
 
     if (!match) {
       return res.status(404).json({ error: "Match not found" });
@@ -110,10 +108,11 @@ const getScoredetails = async (req, res) => {
   }
 };
 
+// Update score details
 const updateScoredetails = async (req, res) => {
   try {
     const { matchId, scoreId } = req.params;
-    const { teams, round1,round2,round3 } = req.body;
+    const { teams, round1 } = req.body;
 
     // Check if the matchId and scoreId are valid ObjectIds
     if (
@@ -125,7 +124,7 @@ const updateScoredetails = async (req, res) => {
         .json({ message: "Invalid Match or Score ID format" });
     }
 
-    const match = await V_m.findById(matchId);
+    const match = await TW_m.findById(matchId);
 
     if (!match) {
       return res.status(404).json({ message: "Match not found" });
@@ -141,8 +140,6 @@ const updateScoredetails = async (req, res) => {
     // Update the score
     existingScore.teams = teams;
     existingScore.round1 = round1;
-    existingScore.round2 = round2;
-    existingScore.round3 = round3;
 
     // Save the updated match
     await match.save();
@@ -164,7 +161,7 @@ const deleteScoredetails = async (req, res) => {
   const { scoreId, matchId } = req.params;
 
   try {
-    const existingMatch = await V_m.findById(matchId);
+    const existingMatch = await TW_m.findById(matchId);
     if (!existingMatch) {
       return res.status(404).json({ message: "Match not found" });
     }
@@ -193,7 +190,7 @@ const addPlayers = async (req, res) => {
   const { player_name, roll_no, year, team_status } = req.body; // Updated field names
 
   try {
-    const match = await V_m.findById(matchId);
+    const match = await TW_m.findById(matchId);
 
     if (!match) {
       return res.status(404).json({ message: "Match not found" });
@@ -221,7 +218,7 @@ const getPlayers = async (req, res) => {
   const { team } = req.query;
 
   try {
-    const match = await V_m.findById(matchId);
+    const match = await TW_m.findById(matchId);
 
     if (!match) {
       return res.status(404).json({ message: "Match not found" });
@@ -243,7 +240,7 @@ const updatePlayerDetails = async (req, res) => {
   const { player_name, roll_no, year, team_status } = req.body;
 
   try {
-    const match = await V_m.findById(matchId);
+    const match = await TW_m.findById(matchId);
 
     if (!match) {
       return res.status(404).json({ error: "Match not found" });
@@ -277,7 +274,7 @@ const deletePlayerDetails = async (req, res) => {
   const { playerId, matchId } = req.params;
 
   try {
-    const match = await V_m.findById(matchId);
+    const match = await TW_m.findById(matchId);
 
     if (!match) {
       return res.status(404).json({ error: "Match not found" });
@@ -297,6 +294,8 @@ const deletePlayerDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// ------------------------------------------------------------------------------------------------------------------------
 
 module.exports = {
   addMatch,

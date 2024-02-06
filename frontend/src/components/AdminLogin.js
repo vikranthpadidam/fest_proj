@@ -1,12 +1,25 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input, Button } from "antd"; // Import Ant Design components
+import { Input, Button, notification } from "antd"; // Import Ant Design components
 import { AiOutlineUser, AiOutlineLock } from "react-icons/ai"; // Import React Icons
+
 
 const AdminLogin = () => {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate(); // Use useNavigate here
+
+  const openSuccessNotification = () => {
+    notification.success({
+      message: "Login successful",
+      description: "Redirecting...",
+      duration: 1.5,
+      onClose: () => {
+        // Navigate to the dashboard page after the notification closes
+        navigate("/");
+      },
+    });
+  };
 
   const handleLogin = async () => {
     try {
@@ -28,14 +41,18 @@ const AdminLogin = () => {
         localStorage.setItem("adminToken", data.token);
         localStorage.setItem("isAdmin", data.isAdmin);
 
-        // Navigate to the dashboard page
-        navigate("/");
+        // Use Ant Design notification component for the success toaster
+        openSuccessNotification();
       } else {
         // Handle login failure (display an error message, etc.)
         console.error("Login failed:", data.error);
+        // You can display an error message here using Ant Design message component
+        notification.error({
+          message: "Login failed",
+          description: data.error,
+          duration: 3,
+        });
       }
-
-      // You can handle success or error messages here
     } catch (error) {
       console.error("Error during login:", error);
     }

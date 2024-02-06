@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const Throwball = () => {
-  const isAdmin = localStorage.getItem("isAdmin") === "true"; // Retrieve and parse admin status
+const Basketball = () => {
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const [matches, setMatches] = useState([]);
   const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
@@ -13,7 +13,6 @@ const Throwball = () => {
   const [scoreFormData, setScoreFormData] = useState({
     teams: "",
     round1: "",
-
   });
   const [scores, setScores] = useState([]);
 
@@ -33,7 +32,7 @@ const Throwball = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/auth/getMatches_tw")
+      .get("http://localhost:5000/api/auth/getMatches_bask")
       .then((response) => setMatches(response.data))
       .catch((error) => console.error(error));
   }, []);
@@ -47,7 +46,7 @@ const Throwball = () => {
       // Update existing match
       axios
         .put(
-          `http://localhost:5000/api/auth/updateMatch_tw/${selectedMatch._id}`,
+          `http://localhost:5000/api/auth/updateMatch_bask/${selectedMatch._id}`,
           newMatch
         )
         .then((response) => {
@@ -56,7 +55,7 @@ const Throwball = () => {
               match._id === selectedMatch._id ? response.data : match
             )
           );
-          setNewMatch({ name: "", status: "future" });
+          setNewMatch({ name: "", status: "future", gender: "boys" });
           setSelectedMatch(null);
           setIsFormVisible(false);
         })
@@ -64,10 +63,10 @@ const Throwball = () => {
     } else {
       // Add new match
       axios
-        .post("http://localhost:5000/api/auth/addMatch_tw", newMatch)
+        .post("http://localhost:5000/api/auth/addMatch_bask", newMatch)
         .then((response) => {
           setMatches([...matches, response.data]);
-          setNewMatch({ name: "", status: "future" });
+          setNewMatch({ name: "", status: "future", gender: "boys" });
           setIsFormVisible(false);
         })
         .catch((error) => console.error(error));
@@ -78,13 +77,13 @@ const Throwball = () => {
     if (selectedMatch) {
       axios
         .delete(
-          `http://localhost:5000/api/auth/deleteMatch_tw/${selectedMatch._id}`
+          `http://localhost:5000/api/auth/deleteMatch_bask/${selectedMatch._id}`
         )
         .then(() => {
           setMatches(
             matches.filter((match) => match._id !== selectedMatch._id)
           );
-          setNewMatch({ name: "", status: "future" });
+          setNewMatch({ name: "", status: "future", gender: "boys" });
           setSelectedMatch(null);
           setIsFormVisible(false);
         })
@@ -98,19 +97,19 @@ const Throwball = () => {
 
     // Fetch scores for the selected match
     axios
-      .get(`http://localhost:5000/api/auth/getScores_tw/${match._id}`)
+      .get(`http://localhost:5000/api/auth/getScores_bask/${match._id}`)
       .then((response) => setScores(response.data))
       .catch((error) => console.error(error));
     axios
       .get(
-        `http://localhost:5000/api/auth/getPlayers_tw/${match._id}?team=TeamA`
+        `http://localhost:5000/api/auth/getPlayers_bask/${match._id}?team=TeamA`
       )
       .then((response) => setPlayersTeamA(response.data))
       .catch((error) => console.error(error));
 
     axios
       .get(
-        `http://localhost:5000/api/auth/getPlayers_tw/${match._id}?team=TeamB`
+        `http://localhost:5000/api/auth/getPlayers_bask/${match._id}?team=TeamB`
       )
       .then((response) => setPlayersTeamB(response.data))
       .catch((error) => console.error(error));
@@ -121,7 +120,6 @@ const Throwball = () => {
     setScoreFormData({
       teams: score.teams,
       round1: score.round1,
-
     });
   };
 
@@ -139,15 +137,17 @@ const Throwball = () => {
     if (selectedMatch) {
       axios
         .post(
-          `http://localhost:5000/api/auth/addScores_tw/${selectedMatch._id}`,
-          scoreFormData
+          `http://localhost:5000/api/auth/addScores_bask/${selectedMatch._id}`,
+          {
+            ...scoreFormData,
+            round1: parseInt(scoreFormData.round1), // Parse round1 to integer
+          }
         )
         .then((response) => {
           setScores([...scores, response.data]);
           setScoreFormData({
             teams: "",
             round1: "",
-
           });
         })
         .catch((error) => console.error(error));
@@ -155,16 +155,20 @@ const Throwball = () => {
   };
 
   const handleUpdateScore = () => {
-    if (selectedMatch && selectedScoreDetails) {
+    if (selectedMatch && selectedScoreDetails && selectedScoreDetails._id) {
       const scoreId = selectedScoreDetails._id;
 
       // Update existing score
       axios
         .put(
-          `http://localhost:5000/api/auth/updateScoredetails_tw/${selectedMatch._id}/${scoreId}`,
-          scoreFormData
+          `http://localhost:5000/api/auth/updateScoredetails_bask/${selectedMatch._id}/${scoreId}`,
+          {
+            ...scoreFormData,
+            round1: parseInt(scoreFormData.round1), // Parse round1 to integer
+          }
         )
         .then((response) => {
+          console.log("Update Score Response:", response.data);
           setScores(
             scores.map((score) =>
               score._id === selectedScoreDetails._id ? response.data : score
@@ -173,15 +177,17 @@ const Throwball = () => {
           setScoreFormData({
             teams: "",
             round1: "",
-
           });
           setSelectedScoreDetails(null);
         })
         .catch((error) => console.error(error));
+    } else {
+      console.log(
+        "Selected match or score details are not populated correctly."
+      );
     }
   };
 
-  // Modify the handleDeleteScore function
   const handleDeleteScore = () => {
     if (selectedScoreDetails) {
       const matchId = selectedMatch._id;
@@ -189,7 +195,7 @@ const Throwball = () => {
 
       axios
         .delete(
-          `http://localhost:5000/api/auth/deleteScoredetails_tw/${scoreId}/${matchId}`
+          `http://localhost:5000/api/auth/deleteScoredetails_bask/${scoreId}/${matchId}`
         )
         .then(() => {
           const updatedScores = scores.filter(
@@ -223,8 +229,12 @@ const Throwball = () => {
     if (selectedMatch) {
       axios
         .post(
-          `http://localhost:5000/api/auth/addPlayers_tw/${selectedMatch._id}`,
-          playerFormData
+          `http://localhost:5000/api/auth/addPlayers_bask/${selectedMatch._id}`,
+          {
+            ...playerFormData,
+            rollNo: parseInt(playerFormData.rollNo), // Parse rollNo to integer
+            year: parseInt(playerFormData.year), // Parse year to integer
+          }
         )
         .then((response) => {
           const updatedPlayers = [...playersTeamA];
@@ -267,11 +277,11 @@ const Throwball = () => {
       // Update existing player
       axios
         .put(
-          `http://localhost:5000/api/auth/updatePlayerDetails_tw/${matchId}/${playerId}`,
+          `http://localhost:5000/api/auth/updatePlayerDetails_bask/${matchId}/${playerId}`,
           {
             player_name: playerFormData.player_name,
-            roll_no: playerFormData.roll_no,
-            year: playerFormData.year,
+            roll_no: parseInt(playerFormData.roll_no), // Parse rollNo to integer
+            year: parseInt(playerFormData.year), // Parse year to integer
             team_status: playerFormData.team_status,
           }
         )
@@ -310,9 +320,18 @@ const Throwball = () => {
     if (selectedPlayerDetails) {
       const matchId = selectedMatch._id;
       const playerId = selectedPlayerDetails._id;
+
+      console.log("Player ID:", playerId);
+      console.log("Match ID:", matchId);
+
+      if (!playerId || !matchId) {
+        console.error("Player ID or Match ID is undefined");
+        return;
+      }
+
       axios
         .delete(
-          `http://localhost:5000/api/auth/deletePlayerDetails_tw/${playerId}/${matchId}`
+          `http://localhost:5000/api/auth/deletePlayerDetails_bask/${playerId}/${matchId}`
         )
         .then(() => {
           const updatedPlayers =
@@ -350,7 +369,7 @@ const Throwball = () => {
 
   return (
     <div className="container mt-4">
-      <h1 className="mb-4">Throwball Page</h1>
+      <h1 className="mb-4">Basketball Page</h1>
       {/*--------------------------------------------------------------------------------------------------------- */}
       {isAdmin && (
         <div className="mb-3">
@@ -363,37 +382,56 @@ const Throwball = () => {
             </button>
           ) : (
             <div>
-              <label className="mr-2">Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={newMatch.name || ""}
-                onChange={handleInputChange}
-                className="form-control mr-2"
-              />
-              <label className="mr-2">Status:</label>
-              <select
-                name="status"
-                value={newMatch.status}
-                onChange={handleInputChange}
-                className="form-control mr-2"
-              >
-                <option value="past">Past</option>
-                <option value="present">Present</option>
-                <option value="future">Future</option>
-              </select>
+              <div className="form-group">
+                <label htmlFor="name">Name:</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={newMatch.name}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="status">Status:</label>
+                <select
+                  name="status"
+                  value={newMatch.status}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                >
+                  <option value="past">Past</option>
+                  <option value="present">Present</option>
+                  <option value="future">Future</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="gender">Gender:</label>
+                <select
+                  name="gender"
+                  value={newMatch.gender}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                >
+                  <option value="boys">Boys</option>
+                  <option value="girls">Girls</option>
+                </select>
+              </div>
 
               <button onClick={handleAddMatch} className="btn btn-primary mr-2">
                 {selectedMatch ? "Update Match" : "Add Match"}
               </button>
-              {/* {selectedMatch && ( */}
-              <button
-                onClick={handleDeleteMatch}
-                className="btn btn-danger mr-2"
-              >
-                Delete Match
-              </button>
-              {/* )} */}
+
+              {selectedMatch && (
+                <button
+                  onClick={handleDeleteMatch}
+                  className="btn btn-danger mr-2"
+                >
+                  Delete Match
+                </button>
+              )}
 
               <button onClick={handleHideForm} className="btn btn-secondary">
                 Hide
@@ -405,13 +443,15 @@ const Throwball = () => {
 
       {/* ------------------------------------------------------------------ */}
       <div>
-        <h2>Matches</h2>
+        <h2>Boys Matches</h2>
         <div className="row">
           <div className="col-md-4">
             <h4>Yesterday</h4>
             <ul className="list-group">
               {matches
-                .filter((match) => match.status === "past")
+                .filter(
+                  (match) => match.status === "past" && match.gender === "boys"
+                )
                 .map((match) => (
                   <li
                     key={match._id}
@@ -431,7 +471,10 @@ const Throwball = () => {
             <h4>Today</h4>
             <ul className="list-group">
               {matches
-                .filter((match) => match.status === "present")
+                .filter(
+                  (match) =>
+                    match.status === "present" && match.gender === "boys"
+                )
                 .map((match) => (
                   <li
                     key={match._id}
@@ -451,7 +494,10 @@ const Throwball = () => {
             <h4>Tomorrow</h4>
             <ul className="list-group">
               {matches
-                .filter((match) => match.status === "future")
+                .filter(
+                  (match) =>
+                    match.status === "future" && match.gender === "boys"
+                )
                 .map((match) => (
                   <li
                     key={match._id}
@@ -469,6 +515,82 @@ const Throwball = () => {
           </div>
         </div>
       </div>
+
+      {/* Girls Matches */}
+      <div>
+        <h2>Girls Matches</h2>
+        <div className="row">
+          <div className="col-md-4">
+            <h4>Yesterday</h4>
+            <ul className="list-group">
+              {matches
+                .filter(
+                  (match) => match.status === "past" && match.gender === "girls"
+                )
+                .map((match) => (
+                  <li
+                    key={match._id}
+                    className={`list-group-item ${
+                      selectedMatch && selectedMatch._id === match._id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleRowClick(match)}
+                  >
+                    {match.name}
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className="col-md-4">
+            <h4>Today</h4>
+            <ul className="list-group">
+              {matches
+                .filter(
+                  (match) =>
+                    match.status === "present" && match.gender === "girls"
+                )
+                .map((match) => (
+                  <li
+                    key={match._id}
+                    className={`list-group-item ${
+                      selectedMatch && selectedMatch._id === match._id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleRowClick(match)}
+                  >
+                    {match.name}
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className="col-md-4">
+            <h4>Tomorrow</h4>
+            <ul className="list-group">
+              {matches
+                .filter(
+                  (match) =>
+                    match.status === "future" && match.gender === "girls"
+                )
+                .map((match) => (
+                  <li
+                    key={match._id}
+                    className={`list-group-item ${
+                      selectedMatch && selectedMatch._id === match._id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleRowClick(match)}
+                  >
+                    {match.name}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
       {/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */}
       <div className="mt-4">
         <h3>Score Details</h3>
@@ -476,7 +598,7 @@ const Throwball = () => {
           <thead>
             <tr>
               <th>Teams</th>
-              <th>Round 1</th>
+              <th>Goals</th>
             </tr>
           </thead>
           <tbody>
@@ -498,7 +620,7 @@ const Throwball = () => {
         </table>
 
         {/* Add Score Form */}
-        {selectedMatch && isAddScoreFormVisible && (
+        {isAdmin && selectedMatch && isAddScoreFormVisible && (
           <div className="form-row">
             <div className="form-group col-md-3">
               <label>Teams:</label>
@@ -513,7 +635,7 @@ const Throwball = () => {
             <div className="form-group col-md-3">
               <label>Round 1:</label>
               <input
-                type="text"
+                type="number"
                 name="round1"
                 value={scoreFormData.round1}
                 onChange={handleScoreInputChange}
@@ -636,7 +758,7 @@ const Throwball = () => {
             <div className="form-group col-md-3">
               <label>Roll No:</label>
               <input
-                type="text"
+                type="number"
                 name="roll_no"
                 value={playerFormData.roll_no}
                 onChange={handlePlayerInputChange}
@@ -646,7 +768,7 @@ const Throwball = () => {
             <div className="form-group col-md-3">
               <label>Year:</label>
               <input
-                type="text"
+                type="number"
                 name="year"
                 value={playerFormData.year}
                 onChange={handlePlayerInputChange}
@@ -705,4 +827,4 @@ const Throwball = () => {
   );
 };
 
-export default Throwball;
+export default Basketball;

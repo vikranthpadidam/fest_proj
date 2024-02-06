@@ -13,8 +13,6 @@ const Football = () => {
   const [scoreFormData, setScoreFormData] = useState({
     teams: "",
     round1: "",
-    round2: "",
-    round3: "",
   });
   const [scores, setScores] = useState([]);
 
@@ -85,7 +83,7 @@ const Football = () => {
           setMatches(
             matches.filter((match) => match._id !== selectedMatch._id)
           );
-          setNewMatch({ name: "", status: "future" });
+          setNewMatch({ name: "", status: "future", gender: "boys" });
           setSelectedMatch(null);
           setIsFormVisible(false);
         })
@@ -118,8 +116,6 @@ const Football = () => {
     setScoreFormData({
       teams: score.teams,
       round1: score.round1,
-      round2: score.round2,
-      round3: score.round3,
     });
   };
 
@@ -136,52 +132,54 @@ const Football = () => {
   const handleAddScore = () => {
     if (selectedMatch) {
       axios
-        .post(
-          `http://localhost:5000/api/auth/addScores/${selectedMatch._id}`,
-          scoreFormData
-        )
+        .post(`http://localhost:5000/api/auth/addScores/${selectedMatch._id}`, {
+          ...scoreFormData,
+          round1: parseInt(scoreFormData.round1), // Parse round1 to integer
+        })
         .then((response) => {
           setScores([...scores, response.data]);
           setScoreFormData({
             teams: "",
             round1: "",
-            round2: "",
-            round3: "",
           });
         })
         .catch((error) => console.error(error));
     }
   };
 
-  const handleUpdateScore = () => {
-    if (selectedMatch && selectedScoreDetails) {
-      console.log(selectedScoreDetails._id);
-      console.log(selectedMatch);
-      // Update existing score
-      axios
-        .put(
-          `http://localhost:5000/api/auth/updateScoredetails/${selectedScoreDetails._id}`,
-          scoreFormData
-        )
-        .then((response) => {
-          setScores(
-            scores.map((score) =>
-              score._id === selectedScoreDetails._id ? response.data : score
-            )
-          );
-          setScoreFormData({
-            teams: "",
-            round1: "",
-            round2: "",
-            round3: "",
-          });
-          setSelectedScoreDetails(null);
-        })
-        .catch((error) => console.error(error));
-    }
-  };
+const handleUpdateScore = () => {
+  if (selectedMatch && selectedScoreDetails && selectedScoreDetails._id) {
+    const scoreId = selectedScoreDetails._id;
 
-  // Modify the handleDeleteScore function
+    // Update existing score
+    axios
+      .put(
+        `http://localhost:5000/api/auth/updateScoredetails/${selectedMatch._id}/${scoreId}`,
+        {
+          ...scoreFormData,
+          round1: parseInt(scoreFormData.round1), // Parse round1 to integer
+        }
+      )
+      .then((response) => {
+        console.log("Update Score Response:", response.data);
+        setScores(
+          scores.map((score) =>
+            score._id === selectedScoreDetails._id ? response.data : score
+          )
+        );
+        setScoreFormData({
+          teams: "",
+          round1: "",
+        });
+        setSelectedScoreDetails(null);
+      })
+      .catch((error) => console.error(error));
+  } else {
+    console.log("Selected match or score details are not populated correctly.");
+  }
+};
+
+
   const handleDeleteScore = () => {
     if (selectedScoreDetails) {
       const matchId = selectedMatch._id;
@@ -189,10 +187,7 @@ const Football = () => {
 
       axios
         .delete(
-          `http://localhost:5000/api/auth/deleteScoredetails/${scoreId}`,
-          {
-            data: { matchId: matchId },
-          }
+          `http://localhost:5000/api/auth/deleteScoredetails/${scoreId}/${matchId}`
         )
         .then(() => {
           const updatedScores = scores.filter(
@@ -203,8 +198,6 @@ const Football = () => {
           setScoreFormData({
             teams: "",
             round1: "",
-            round2: "",
-            round3: "",
           });
           setSelectedScoreDetails(null);
         })
@@ -229,7 +222,11 @@ const Football = () => {
       axios
         .post(
           `http://localhost:5000/api/auth/addPlayers/${selectedMatch._id}`,
-          playerFormData
+          {
+            ...playerFormData,
+            rollNo: parseInt(playerFormData.rollNo), // Parse rollNo to integer
+            year: parseInt(playerFormData.year), // Parse year to integer
+          }
         )
         .then((response) => {
           const updatedPlayers = [...playersTeamA];
@@ -266,14 +263,15 @@ const Football = () => {
 
   const handleUpdatePlayer = () => {
     if (selectedMatch && selectedPlayerDetails) {
-      const { _id } = selectedPlayerDetails;
+      const  matchId  = selectedMatch._id;
+      const  playerId  = selectedPlayerDetails._id;
 
       // Update existing player
       axios
-        .put(`http://localhost:5000/api/auth/updatePlayerDetails/${_id}`, {
+        .put(`http://localhost:5000/api/auth/updatePlayerDetails/${matchId}/${playerId}`, {
           player_name: playerFormData.player_name,
-          roll_no: playerFormData.roll_no,
-          year: playerFormData.year,
+          roll_no: parseInt(playerFormData.roll_no), // Parse rollNo to integer
+          year: parseInt(playerFormData.year), // Parse year to integer
           team_status: playerFormData.team_status,
         })
         .then((response) => {
@@ -283,10 +281,10 @@ const Football = () => {
           const updatedPlayers =
             playerFormData.team_status === "TeamA"
               ? playersTeamA.map((player) =>
-                  player._id === _id ? updatedPlayer : player
+                  player._id === playerId ? updatedPlayer : player
                 )
               : playersTeamB.map((player) =>
-                  player._id === _id ? updatedPlayer : player
+                  player._id === playerId ? updatedPlayer : player
                 );
 
           // Set the updated players to the respective state
@@ -307,37 +305,50 @@ const Football = () => {
     }
   };
 
-  const handleDeletePlayer = () => {
-    if (selectedPlayerDetails) {
-      axios
-        .delete(
-          `http://localhost:5000/api/auth/deletePlayerDetails/${selectedPlayerDetails._id}`
-        )
-        .then(() => {
-          const updatedPlayers =
-            selectedPlayerDetails.team_status === "TeamA"
-              ? playersTeamA.filter(
-                  (player) => player._id !== selectedPlayerDetails._id
-                )
-              : playersTeamB.filter(
-                  (player) => player._id !== selectedPlayerDetails._id
-                );
+const handleDeletePlayer = () => {
+  if (selectedPlayerDetails) {
+    const matchId = selectedMatch._id; 
+    const playerId = selectedPlayerDetails._id;
 
-          selectedPlayerDetails.team_status === "TeamA"
-            ? setPlayersTeamA(updatedPlayers)
-            : setPlayersTeamB(updatedPlayers);
+    console.log("Player ID:", playerId);
+    console.log("Match ID:", matchId);
 
-          setPlayerFormData({
-            player_name: "",
-            roll_no: "",
-            year: "",
-            team_status: "TeamA", // Set default team_status to TeamA
-          });
-          setSelectedPlayerDetails(null);
-        })
-        .catch((error) => console.error(error));
+    if (!playerId || !matchId) {
+      console.error("Player ID or Match ID is undefined");
+      return;
     }
-  };
+
+    axios
+      .delete(
+        `http://localhost:5000/api/auth/deletePlayerDetails/${playerId}/${matchId}`
+      )
+      .then(() => {
+        const updatedPlayers =
+          selectedPlayerDetails.team_status === "TeamA"
+            ? playersTeamA.filter(
+                (player) => player._id !== selectedPlayerDetails._id
+              )
+            : playersTeamB.filter(
+                (player) => player._id !== selectedPlayerDetails._id
+              );
+
+        selectedPlayerDetails.team_status === "TeamA"
+          ? setPlayersTeamA(updatedPlayers)
+          : setPlayersTeamB(updatedPlayers);
+
+        setPlayerFormData({
+          player_name: "",
+          roll_no: "",
+          year: "",
+          team_status: "TeamA", // Set default team_status to TeamA
+        });
+        setSelectedPlayerDetails(null);
+      })
+      .catch((error) => console.error(error));
+  }
+};
+
+
 
   const handleHideAddPlayerForm = () => {
     setIsAddPlayerFormVisible(false);
@@ -578,9 +589,7 @@ const Football = () => {
           <thead>
             <tr>
               <th>Teams</th>
-              <th>Round 1</th>
-              <th>Round 2</th>
-              <th>Round 3</th>
+              <th>Goals</th>
             </tr>
           </thead>
           <tbody>
@@ -596,8 +605,6 @@ const Football = () => {
               >
                 <td>{score.teams}</td>
                 <td>{score.round1}</td>
-                <td>{score.round2}</td>
-                <td>{score.round3}</td>
               </tr>
             ))}
           </tbody>
@@ -619,29 +626,9 @@ const Football = () => {
             <div className="form-group col-md-3">
               <label>Round 1:</label>
               <input
-                type="text"
+                type="number"
                 name="round1"
                 value={scoreFormData.round1}
-                onChange={handleScoreInputChange}
-                className="form-control"
-              />
-            </div>
-            <div className="form-group col-md-3">
-              <label>Round 2:</label>
-              <input
-                type="text"
-                name="round2"
-                value={scoreFormData.round2}
-                onChange={handleScoreInputChange}
-                className="form-control"
-              />
-            </div>
-            <div className="form-group col-md-3">
-              <label>Round 3:</label>
-              <input
-                type="text"
-                name="round3"
-                value={scoreFormData.round3}
                 onChange={handleScoreInputChange}
                 className="form-control"
               />
@@ -762,7 +749,7 @@ const Football = () => {
             <div className="form-group col-md-3">
               <label>Roll No:</label>
               <input
-                type="text"
+                type="number"
                 name="roll_no"
                 value={playerFormData.roll_no}
                 onChange={handlePlayerInputChange}
@@ -772,7 +759,7 @@ const Football = () => {
             <div className="form-group col-md-3">
               <label>Year:</label>
               <input
-                type="text"
+                type="number"
                 name="year"
                 value={playerFormData.year}
                 onChange={handlePlayerInputChange}
