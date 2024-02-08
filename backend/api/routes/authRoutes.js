@@ -1,19 +1,57 @@
 const express = require("express");
+
 const auth_Football = require("../controllers/auth_Football");
 const auth_Vollyball = require("../controllers/auth_Vollyball");
 const authStatistics = require("../controllers/authStatistics");
-const auth_Admin = require('../controllers/auth_AdminLogin');
-const auth_Carroms = require('../controllers/auth_Carroms');
-const auth_Badmintain = require('../controllers/auth_Badminton');
-const auth_Basketball = require('../controllers/auth_Basketball');
-const auth_Chess = require('../controllers/auth_Chess');
-const auth_Kabbadi = require('../controllers/auth_Kabbadi');
-const auth_TT = require('../controllers/auth_Tabletennis');
-const auth_TW = require('../controllers/auth_Throwball');
-const auth_Crk = require('../controllers/auth_Cricket');
+const auth_Admin = require("../controllers/auth_AdminLogin");
+const auth_Carroms = require("../controllers/auth_Carroms");
+const auth_Badmintain = require("../controllers/auth_Badminton");
+const auth_Basketball = require("../controllers/auth_Basketball");
+const auth_Chess = require("../controllers/auth_Chess");
+const auth_Kabbadi = require("../controllers/auth_Kabbadi");
+const auth_TT = require("../controllers/auth_Tabletennis");
+const auth_TW = require("../controllers/auth_Throwball");
+const auth_Crk = require("../controllers/auth_Cricket");
+const auth_Winner = require("../controllers/auth_Winner");
+const auth_Livematche = require('../controllers/auth_Livematche');
+const multer = require("multer");
+// Configure multer for handling file uploads
+const storage = multer.memoryStorage(); // Use memory storage for FormData
+const upload = multer({ storage: storage });
+
+
 const router = express.Router();
 
+
+
 router.post("/admin_login", auth_Admin.adminLogin);
+// Get sports item by name
+router.get("/sportsItems/name/:itemName", auth_Winner.getSportsItemByName);
+
+
+
+//Get the sports byID
+router.get("/sportsItems/:itemId", auth_Winner.getSportsItemById);
+// Add a new sports item
+// router.post("/sportsItems", authControllers.addSportsItem);
+router.post("/sportsItems", upload.single("image"), auth_Winner.addSportsItem);
+// Get all sports items
+router.get("/sportsItems", auth_Winner.getAllSportsItems);
+router.delete("/sportsItems/:itemId", auth_Winner.deleteSportsItem);
+
+
+//Get the sports byID
+router.get("/sportsItems_live/:itemId", auth_Livematche.getSportsItemById);
+// Add a new sports item
+// router.post("/sportsItems", authControllers.addSportsItem);
+router.post(
+  "/sportsItems_live",
+  upload.single("image"),
+  auth_Livematche.addSportsItem
+);
+// Get all sports items
+router.get("/sportsItems_live", auth_Livematche.getAllSportsItems);
+router.delete("/sportsItems_live/:itemId", auth_Livematche.deleteSportsItem);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////FOOTBALL
 router.post("/addMatch", auth_Football.addMatch);
@@ -91,7 +129,6 @@ router.delete(
   "/deletePlayerDetails_Bad/:playerId/:matchId",
   auth_Badmintain.deletePlayerDetails
 );
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////VOLLYBALL
 router.post("/addMatch_volly", auth_Vollyball.addMatch);
@@ -272,9 +309,6 @@ router.delete(
   "/deletePlayerDetails_crk/:playerId/:matchId",
   auth_Crk.deletePlayerDetails
 );
-
-
-
 
 router.get("/getAllStatistics", authStatistics.getAllStatistics);
 router.post("/addStatistic", authStatistics.addStatistic);

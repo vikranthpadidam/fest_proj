@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 const Chess_m = require('../models/Chess_m');
 
-// Controller to add a new match
 const addMatch = async (req, res) => {
   try {
-    const { name, status, gender } = req.body;
-    const newMatch = new Chess_m({ name, status, gender });
+    const { teamA, teamB, status, gender } = req.body;
+    const name = `${teamA} VS ${teamB}`;
+    const newMatch = new Chess_m({ name, teamA, teamB, status, gender }); // Update to include teamA and teamB
     await newMatch.save();
     res.json(newMatch);
   } catch (error) {
@@ -14,21 +14,11 @@ const addMatch = async (req, res) => {
   }
 };
 
-// Controller to get all matches
-const getMatches = async (req, res) => {
-  try {
-    const matches = await Chess_m.find();
-    res.json(matches);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
 
 const updateMatch = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, status, gender } = req.body;
+    const { teamA, teamB, status, gender } = req.body;
 
     // Check if the match exists
     const existingMatch = await Chess_m.findById(id);
@@ -37,7 +27,7 @@ const updateMatch = async (req, res) => {
     }
 
     // Update the match
-    existingMatch.name = name;
+    existingMatch.name = `${teamA} VS ${teamB}`;
     existingMatch.status = status;
     existingMatch.gender = gender;
     const updatedMatch = await existingMatch.save();
@@ -49,6 +39,18 @@ const updateMatch = async (req, res) => {
   }
 };
 
+
+
+// Controller to get all matches
+const getMatches = async (req, res) => {
+  try {
+    const matches = await Chess_m.find();
+    res.json(matches);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 // Controller to delete a match
 const deleteMatch = async (req, res) => {
   try {

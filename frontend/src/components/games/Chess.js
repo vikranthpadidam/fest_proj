@@ -29,16 +29,31 @@ const Chess = () => {
 
   const [selectedScoreDetails, setSelectedScoreDetails] = useState(null);
   const [selectedPlayerDetails, setSelectedPlayerDetails] = useState(null);
+  const [footballImage, setFootballImage] = useState(null);
 
   useEffect(() => {
     axios
       .get("http://localhost:5000/api/auth/getMatches_chess")
       .then((response) => setMatches(response.data))
       .catch((error) => console.error(error));
+
+    axios
+      .get(`/api/auth/sportsItems/name/chess`)
+      .then((response) => {
+        setFootballImage(response.data.image);
+      })
+      .catch((error) => {
+        console.error("Error fetching football image:", error);
+      });
   }, []);
 
   const handleInputChange = (e) => {
-    setNewMatch({ ...newMatch, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setNewMatch((prevState) => ({
+      ...prevState,
+      [name]: value,
+      name: `${prevState.teamA || "Team A"} VS ${prevState.teamB || "Team B"}`, // Update name field
+    }));
   };
 
   const handleAddMatch = () => {
@@ -47,7 +62,15 @@ const Chess = () => {
       axios
         .put(
           `http://localhost:5000/api/auth/updateMatch_chess/${selectedMatch._id}`,
-          newMatch
+          {
+            teamA: newMatch.teamA,
+            teamB: newMatch.teamB,
+            name: `${newMatch.teamA || "Team A"} VS ${
+              newMatch.teamB || "Team B"
+            }`,
+            status: newMatch.status,
+            gender: newMatch.gender,
+          }
         )
         .then((response) => {
           setMatches(
@@ -55,7 +78,7 @@ const Chess = () => {
               match._id === selectedMatch._id ? response.data : match
             )
           );
-          setNewMatch({ name: "", status: "future", gender: "boys" });
+          setNewMatch({ ...response.data }); // Update newMatch state with response data
           setSelectedMatch(null);
           setIsFormVisible(false);
         })
@@ -63,10 +86,18 @@ const Chess = () => {
     } else {
       // Add new match
       axios
-        .post("http://localhost:5000/api/auth/addMatch_chess", newMatch)
+        .post("http://localhost:5000/api/auth/addMatch_chess", {
+          teamA: newMatch.teamA,
+          teamB: newMatch.teamB,
+          name: `${newMatch.teamA || "Team A"} VS ${
+            newMatch.teamB || "Team B"
+          }`,
+          status: newMatch.status,
+          gender: newMatch.gender,
+        })
         .then((response) => {
           setMatches([...matches, response.data]);
-          setNewMatch({ name: "", status: "future", gender: "boys" });
+          setNewMatch({ ...response.data }); // Update newMatch state with response data
           setIsFormVisible(false);
         })
         .catch((error) => console.error(error));
@@ -383,11 +414,21 @@ const Chess = () => {
           ) : (
             <div>
               <div className="form-group">
-                <label htmlFor="name">Name:</label>
+                <label htmlFor="teamA">Team A:</label>
                 <input
                   type="text"
-                  name="name"
-                  value={newMatch.name}
+                  name="teamA"
+                  value={newMatch.teamA}
+                  onChange={handleInputChange}
+                  className="form-control mr-2"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="teamB">Team B:</label>
+                <input
+                  type="text"
+                  name="teamB"
+                  value={newMatch.teamB}
                   onChange={handleInputChange}
                   className="form-control mr-2"
                 />
@@ -821,6 +862,23 @@ const Chess = () => {
           >
             Add Player
           </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        {footballImage && (
+          <img
+            src={`data:image/jpeg;base64,${footballImage}`}
+            alt="Football"
+            style={{ maxWidth: "50%", maxHeight: "50%" }}
+          />
         )}
       </div>
     </div>

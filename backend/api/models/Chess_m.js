@@ -14,6 +14,8 @@ const scoreSchema = new mongoose.Schema({
 
 const matchSchema = new mongoose.Schema({
   name: String,
+  teamA: String,
+  teamB:String,
   status: String,
   gender: String,
   scores: [scoreSchema],

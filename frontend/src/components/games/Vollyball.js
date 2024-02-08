@@ -33,11 +33,21 @@ const Vollyball = () => {
   const [selectedScoreDetails, setSelectedScoreDetails] = useState(null);
   const [selectedPlayerDetails, setSelectedPlayerDetails] = useState(null);
 
+  const [footballImage, setFootballImage] = useState(null);
+  
   useEffect(() => {
     axios
       .get("http://localhost:5000/api/auth/getMatches_volly")
       .then((response) => setMatches(response.data))
       .catch((error) => console.error(error));
+    axios
+      .get(`/api/auth/sportsItems/name/vollyball`)
+      .then((response) => {
+        setFootballImage(response.data.image);
+      })
+      .catch((error) => {
+        console.error("Error fetching football image:", error);
+      });
   }, []);
 
   const handleInputChange = (e) => {
@@ -834,6 +844,25 @@ const Vollyball = () => {
           </button>
         )}
       </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        {footballImage && (
+          <img
+            src={`data:image/jpeg;base64,${footballImage}`}
+            alt="Football"
+            style={{ maxWidth: "50%", maxHeight: "50%" }}
+          />
+        )}
+      </div>
+
+
     </div>
   );
 };

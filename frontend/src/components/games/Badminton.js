@@ -3,7 +3,7 @@ import axios from "axios";
 
 const Badminton = () => {
   const isAdmin = localStorage.getItem("isAdmin") === "true";
-
+  const [footballImage, setFootballImage] = useState(null);
   const [matches, setMatches] = useState([]);
   const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -35,6 +35,14 @@ const Badminton = () => {
       .get("http://localhost:5000/api/auth/getMatches_Bad")
       .then((response) => setMatches(response.data))
       .catch((error) => console.error(error));
+    axios
+      .get(`/api/auth/sportsItems/name/badminton`)
+      .then((response) => {
+        setFootballImage(response.data.image);
+      })
+      .catch((error) => {
+        console.error("Error fetching football image:", error);
+      });
   }, []);
 
   const handleInputChange = (e) => {
@@ -821,6 +829,22 @@ const Badminton = () => {
           >
             Add Player
           </button>
+        )}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        {footballImage && (
+          <img
+            src={`data:image/jpeg;base64,${footballImage}`}
+            alt="Football"
+            style={{ maxWidth: "50%", maxHeight: "50%" }}
+          />
         )}
       </div>
     </div>

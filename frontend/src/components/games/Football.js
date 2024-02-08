@@ -3,7 +3,7 @@ import axios from "axios";
 
 const Football = () => {
   const isAdmin = localStorage.getItem("isAdmin") === "true";
-
+  const [footballImage, setFootballImage] = useState(null);
   const [matches, setMatches] = useState([]);
   const [newMatch, setNewMatch] = useState({ name: "", status: "future" });
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -35,6 +35,16 @@ const Football = () => {
       .get("http://localhost:5000/api/auth/getMatches")
       .then((response) => setMatches(response.data))
       .catch((error) => console.error(error));
+
+    // Fetch football image based on name
+    axios
+      .get(`/api/auth/sportsItems/name/football`)
+      .then((response) => {
+        setFootballImage(response.data.image);
+      })
+      .catch((error) => {
+        console.error("Error fetching football image:", error);
+      });
   }, []);
 
   const handleInputChange = (e) => {
@@ -147,38 +157,39 @@ const Football = () => {
     }
   };
 
-const handleUpdateScore = () => {
-  if (selectedMatch && selectedScoreDetails && selectedScoreDetails._id) {
-    const scoreId = selectedScoreDetails._id;
+  const handleUpdateScore = () => {
+    if (selectedMatch && selectedScoreDetails && selectedScoreDetails._id) {
+      const scoreId = selectedScoreDetails._id;
 
-    // Update existing score
-    axios
-      .put(
-        `http://localhost:5000/api/auth/updateScoredetails/${selectedMatch._id}/${scoreId}`,
-        {
-          ...scoreFormData,
-          round1: parseInt(scoreFormData.round1), // Parse round1 to integer
-        }
-      )
-      .then((response) => {
-        console.log("Update Score Response:", response.data);
-        setScores(
-          scores.map((score) =>
-            score._id === selectedScoreDetails._id ? response.data : score
-          )
-        );
-        setScoreFormData({
-          teams: "",
-          round1: "",
-        });
-        setSelectedScoreDetails(null);
-      })
-      .catch((error) => console.error(error));
-  } else {
-    console.log("Selected match or score details are not populated correctly.");
-  }
-};
-
+      // Update existing score
+      axios
+        .put(
+          `http://localhost:5000/api/auth/updateScoredetails/${selectedMatch._id}/${scoreId}`,
+          {
+            ...scoreFormData,
+            round1: parseInt(scoreFormData.round1), // Parse round1 to integer
+          }
+        )
+        .then((response) => {
+          console.log("Update Score Response:", response.data);
+          setScores(
+            scores.map((score) =>
+              score._id === selectedScoreDetails._id ? response.data : score
+            )
+          );
+          setScoreFormData({
+            teams: "",
+            round1: "",
+          });
+          setSelectedScoreDetails(null);
+        })
+        .catch((error) => console.error(error));
+    } else {
+      console.log(
+        "Selected match or score details are not populated correctly."
+      );
+    }
+  };
 
   const handleDeleteScore = () => {
     if (selectedScoreDetails) {
@@ -263,17 +274,20 @@ const handleUpdateScore = () => {
 
   const handleUpdatePlayer = () => {
     if (selectedMatch && selectedPlayerDetails) {
-      const  matchId  = selectedMatch._id;
-      const  playerId  = selectedPlayerDetails._id;
+      const matchId = selectedMatch._id;
+      const playerId = selectedPlayerDetails._id;
 
       // Update existing player
       axios
-        .put(`http://localhost:5000/api/auth/updatePlayerDetails/${matchId}/${playerId}`, {
-          player_name: playerFormData.player_name,
-          roll_no: parseInt(playerFormData.roll_no), // Parse rollNo to integer
-          year: parseInt(playerFormData.year), // Parse year to integer
-          team_status: playerFormData.team_status,
-        })
+        .put(
+          `http://localhost:5000/api/auth/updatePlayerDetails/${matchId}/${playerId}`,
+          {
+            player_name: playerFormData.player_name,
+            roll_no: parseInt(playerFormData.roll_no), // Parse rollNo to integer
+            year: parseInt(playerFormData.year), // Parse year to integer
+            team_status: playerFormData.team_status,
+          }
+        )
         .then((response) => {
           const updatedPlayer = response.data;
 
@@ -305,50 +319,48 @@ const handleUpdateScore = () => {
     }
   };
 
-const handleDeletePlayer = () => {
-  if (selectedPlayerDetails) {
-    const matchId = selectedMatch._id; 
-    const playerId = selectedPlayerDetails._id;
+  const handleDeletePlayer = () => {
+    if (selectedPlayerDetails) {
+      const matchId = selectedMatch._id;
+      const playerId = selectedPlayerDetails._id;
 
-    console.log("Player ID:", playerId);
-    console.log("Match ID:", matchId);
+      console.log("Player ID:", playerId);
+      console.log("Match ID:", matchId);
 
-    if (!playerId || !matchId) {
-      console.error("Player ID or Match ID is undefined");
-      return;
-    }
+      if (!playerId || !matchId) {
+        console.error("Player ID or Match ID is undefined");
+        return;
+      }
 
-    axios
-      .delete(
-        `http://localhost:5000/api/auth/deletePlayerDetails/${playerId}/${matchId}`
-      )
-      .then(() => {
-        const updatedPlayers =
+      axios
+        .delete(
+          `http://localhost:5000/api/auth/deletePlayerDetails/${playerId}/${matchId}`
+        )
+        .then(() => {
+          const updatedPlayers =
+            selectedPlayerDetails.team_status === "TeamA"
+              ? playersTeamA.filter(
+                  (player) => player._id !== selectedPlayerDetails._id
+                )
+              : playersTeamB.filter(
+                  (player) => player._id !== selectedPlayerDetails._id
+                );
+
           selectedPlayerDetails.team_status === "TeamA"
-            ? playersTeamA.filter(
-                (player) => player._id !== selectedPlayerDetails._id
-              )
-            : playersTeamB.filter(
-                (player) => player._id !== selectedPlayerDetails._id
-              );
+            ? setPlayersTeamA(updatedPlayers)
+            : setPlayersTeamB(updatedPlayers);
 
-        selectedPlayerDetails.team_status === "TeamA"
-          ? setPlayersTeamA(updatedPlayers)
-          : setPlayersTeamB(updatedPlayers);
-
-        setPlayerFormData({
-          player_name: "",
-          roll_no: "",
-          year: "",
-          team_status: "TeamA", // Set default team_status to TeamA
-        });
-        setSelectedPlayerDetails(null);
-      })
-      .catch((error) => console.error(error));
-  }
-};
-
-
+          setPlayerFormData({
+            player_name: "",
+            roll_no: "",
+            year: "",
+            team_status: "TeamA", // Set default team_status to TeamA
+          });
+          setSelectedPlayerDetails(null);
+        })
+        .catch((error) => console.error(error));
+    }
+  };
 
   const handleHideAddPlayerForm = () => {
     setIsAddPlayerFormVisible(false);
@@ -812,6 +824,22 @@ const handleDeletePlayer = () => {
           >
             Add Player
           </button>
+        )}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+        }}
+      >
+        {footballImage && (
+          <img
+            src={`data:image/jpeg;base64,${footballImage}`}
+            alt="Football"
+            style={{ maxWidth: "50%", maxHeight: "50%" }}
+          />
         )}
       </div>
     </div>
